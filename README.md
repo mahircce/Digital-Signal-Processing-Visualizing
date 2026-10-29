@@ -1,4 +1,4 @@
-# Digital Signal Processing (DSP) Lab in Python 🚀
+# Digital Signal Processing (DSP) in Python 🚀
 
 This repository contains practical implementations of various Digital Signal Processing (DSP) experiments using Python (NumPy, SciPy, and Matplotlib). 
 
