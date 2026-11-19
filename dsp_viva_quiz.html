@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSP MCQ Quiz App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .option-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .correct-answer {
+            background-color: #10b981 !important; /* Emerald 500 */
+            color: white !important;
+            border-color: #059669 !important;
+        }
+
+        .wrong-answer {
+            background-color: #f43f5e !important; /* Rose 500 */
+            color: white !important;
+            border-color: #e11d48 !important;
+        }
+        
+        /* Smooth fade transitions */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 300ms, transform 300ms;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col items-center">
+
+    <!-- Header -->
+    <header class="bg-blue-700 text-white py-5 shadow-md w-full mb-8">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight">DSP Multiple Choice Quiz</h1>
+            <p class="text-blue-200 text-sm mt-1">Digital Signal Processing Self-Assessment</p>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-3xl px-4 flex-grow flex flex-col">
+        
+        <!-- Start Screen -->
+        <div id="startScreen" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12 text-center my-auto fade-enter-active">
+            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">Ready to test your DSP knowledge?</h2>
+            <p class="text-slate-600 mb-8 max-w-lg mx-auto">This quiz contains 60 multiple-choice questions covering Convolution, Correlation, Z-Transform, DFT, and Filters.</p>
+            <button id="startBtn" class="bg-blue-600 text-white font-semibold py-3 px-8 rounded-xl shadow-md hover:bg-blue-700 hover:shadow-lg transition-all text-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
+                Start Quiz Now
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quizScreen" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 flex-col w-full fade-enter-active mb-8">
+            
+            <!-- Progress & Score -->
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+                    Question <span id="questionCount" class="text-blue-600 text-lg">1</span> of <span id="totalCount">60</span>
+                </div>
+                <div class="text-sm font-semibold bg-blue-50 text-blue-700 py-1 px-3 rounded-full">
+                    Score: <span id="currentScore">0</span>
+                </div>
+            </div>
+
+            <!-- Question -->
+            <h2 id="questionText" class="text-xl md:text-2xl font-bold text-slate-800 mb-8 leading-snug">
+                Question loading...
+            </h2>
+
+            <!-- Options Grid -->
+            <div id="optionsContainer" class="flex flex-col gap-3 mb-8">
+                <!-- Buttons will be injected here -->
+            </div>
+            
+            <!-- Auto-next visual indicator (optional) -->
+            <div id="nextIndicator" class="hidden text-center text-sm font-medium text-slate-400 mt-2">
+                Moving to next question...
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="resultScreen" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12 text-center my-auto fade-enter-active">
+            <div id="resultIcon" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 bg-emerald-100 text-emerald-600">
+                <!-- Icon injected based on score -->
+            </div>
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Quiz Completed!</h2>
+            <p class="text-slate-500 mb-8 text-lg" id="resultMessage">Let's see how you did.</p>
+            
+            <div class="bg-slate-50 rounded-xl p-6 mb-8 border border-slate-100 max-w-sm mx-auto">
+                <p class="text-5xl font-extrabold text-blue-600 mb-2" id="finalScoreDisplay">15/60</p>
+                <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total Score</p>
+            </div>
+
+            <button id="retryBtn" class="bg-blue-600 text-white font-semibold py-3 px-8 rounded-xl shadow-md hover:bg-blue-700 hover:shadow-lg transition-all text-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
+                Retry Quiz
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        // Quiz Data - 60 Questions based on the provided list
+        const quizData = [
+            { q: "What is convolution in DSP?", correct: "Mathematical operation combining two signals for LTI system output", wrong: ["Addition of two signals in frequency domain", "Division of signals for noise reduction", "Multiplying two sequences to find total power"] },
+            { q: "Math expression for discrete-time convolution?", correct: "y(n) = Σ x(k) * h(n-k)", wrong: ["y(n) = Σ x(k) + h(n-k)", "y(n) = Σ x(k) * h(n+k)", "y(n) = Σ x(k) / h(n-k)"] },
+            { q: "Why is convolution important?", correct: "Determines output of an LTI system for a given input", wrong: ["Determines the stability of non-linear systems", "Compresses the frequency bandwidth", "Measures the energy of a random signal"] },
+            { q: "Convolution length for sequences of lengths 4 and 3?", correct: "6", wrong: ["7", "12", "5"] },
+            { q: "Convolution of x(n) with delayed impulse δ(n-k)?", correct: "x(n-k)", wrong: ["x(n+k)", "x(k)δ(n)", "1"] },
+            { q: "Length of output sequence when sequences of lengths M and N are convolved?", correct: "M+N-1", wrong: ["M+N", "M*N", "max(M,N)"] },
+            { q: "What is circular convolution?", correct: "Performed on finite-length sequences treated as periodic", wrong: ["Performed on continuous-time infinite signals", "Used only for analog filter design", "Convolution that wraps around the z-plane"] },
+            { q: "How does circular convolution differ from linear?", correct: "Circular wraps around and can suffer from aliasing", wrong: ["Linear is periodic while circular is aperiodic", "Circular is always longer than linear", "Circular requires higher computational complexity O(N!)"] },
+            { q: "Relationship between convolution and impulse response?", correct: "Output is input convolved with impulse response", wrong: ["Input is output convolved with impulse response", "Impulse response is the derivative of convolution", "They are completely independent in LTI systems"] },
+            { q: "Convolution theorem in frequency domain?", correct: "Multiplication in frequency domain", wrong: ["Addition in frequency domain", "Convolution in frequency domain", "Division in frequency domain"] },
+            { q: "Graphical convolution steps?", correct: "Fold, shift, multiply, sum", wrong: ["Shift, add, integrate, fold", "Multiply, divide, subtract, shift", "Fold, integrate, differentiate, scale"] },
+            { q: "What is correlation in DSP?", correct: "Measure of similarity between two signals as a function of time-lag", wrong: ["Measure of frequency spread of a single signal", "Method to convert analog signals to digital", "Technique to amplify weak signals"] },
+            { q: "Autocorrelation vs cross-correlation?", correct: "Auto is with delayed self, cross is with different signal", wrong: ["Auto is frequency domain, cross is time domain", "Auto requires infinite signals, cross requires finite", "Auto is for linear systems, cross is for non-linear"] },
+            { q: "Cross-correlation formula?", correct: "Rxy(l) = Σ x(n) * y(n-l)", wrong: ["Rxy(l) = Σ x(n) + y(n-l)", "Rxy(l) = Σ x(n) * y(n+l)", "Rxy(l) = Σ x(-n) * y(l)"] },
+            { q: "Autocorrelation formula?", correct: "Rxx(l) = Σ x(n) * x(n-l)", wrong: ["Rxx(l) = Σ x(n) + x(n-l)", "Rxx(l) = Σ x(n) / x(n-l)", "Rxx(l) = Σ x(n-l) * y(n)"] },
+            { q: "Correlation vs convolution?", correct: "Cross-correlation is convolving with time-reversed signal", wrong: ["They are identical in all cases", "Convolution is for discrete, correlation is for continuous", "Correlation adds while convolution multiplies"] },
+            { q: "Max value of autocorrelation occurs when?", correct: "At lag l=0", wrong: ["At lag l=∞", "At lag l=1", "At the Nyquist rate"] },
+            { q: "Symmetry property of autocorrelation?", correct: "Even function, symmetric about l=0", wrong: ["Odd function, antisymmetric about l=0", "Periodic function with period N", "Asymmetric and unpredictable"] },
+            { q: "Symmetry of cross-correlation?", correct: "Generally not symmetric, Rxy(l) = Ryx(-l)", wrong: ["Always symmetric about l=0", "Always an odd function", "Rxy(l) = Ryx(l)"] },
+            { q: "How to detect time delay using correlation?", correct: "Find lag where cross-correlation magnitude is maximum", wrong: ["Find lag where autocorrelation is zero", "Find where cross-correlation is minimum", "Calculate the FFT of the autocorrelation"] },
+            { q: "Radar application of cross-correlation?", correct: "Detect time delay between transmitted and received echo", wrong: ["Increase the amplitude of the echo", "Filter out low-frequency noise completely", "Change the frequency of the transmitted pulse"] },
+            { q: "Sharp peak in autocorrelation indicates?", correct: "Signal has little periodicity, noise-like", wrong: ["Signal is a pure sine wave", "Signal has infinite energy", "Signal is completely deterministic"] },
+            { q: "Cross-correlation in frequency domain?", correct: "Sxy(ω) = X*(ω) * Y(ω)", wrong: ["Sxy(ω) = X(ω) + Y(ω)", "Sxy(ω) = X(ω) * Y*(ω) always", "Sxy(ω) = |X(ω)| / |Y(ω)|"] },
+            { q: "Z-transform definition?", correct: "X(z) = Σ x(n) * z^-n", wrong: ["X(z) = Σ x(n) * z^n", "X(z) = ∫ x(t) * e^-st dt", "X(z) = Σ x(n) * e^-jωn"] },
+            { q: "What is ROC?", correct: "Set of values of z where Z-transform converges", wrong: ["Region where the signal has maximum energy", "Set of poles of the system", "Range of frequencies where the filter passes signals"] },
+            { q: "Z-transform of unit impulse δ(n)?", correct: "1", wrong: ["z", "z^-1", "0"] },
+            { q: "Z-transform of unit step u(n)?", correct: "z/(z-1) with ROC |z|>1", wrong: ["1/(z-1) with ROC |z|<1", "z/(z+1) with ROC |z|>0", "1 with ROC all z"] },
+            { q: "Time-shifting property of Z-transform?", correct: "Delay of k samples is multiplication by z^-k", wrong: ["Delay of k samples is addition of z^-k", "Delay of k samples is division by k", "Delay of k samples is multiplication by z^k"] },
+            { q: "Z-transform vs DTFT?", correct: "DTFT is Z-transform evaluated on the unit circle", wrong: ["Z-transform is DTFT evaluated at origin", "They are exactly the same thing", "DTFT applies to continuous time, Z-transform to discrete"] },
+            { q: "Poles and zeros?", correct: "Zeros make X(z)=0, Poles make X(z) infinity", wrong: ["Zeros make X(z) infinity, Poles make X(z)=0", "Zeros dictate stability, Poles dictate minimum phase", "Poles are in time domain, Zeros in frequency domain"] },
+            { q: "Stability condition of causal LTI in Z-domain?", correct: "All poles inside unit circle", wrong: ["All zeros inside unit circle", "All poles on the unit circle", "All poles in the left-half plane"] },
+            { q: "Convolution property of Z-transform?", correct: "Multiplication in Z-domain", wrong: ["Addition in Z-domain", "Convolution in Z-domain", "Division in Z-domain"] },
+            { q: "Initial value theorem?", correct: "x(0) = lim(z→∞) X(z)", wrong: ["x(0) = lim(z→0) X(z)", "x(0) = lim(z→1) X(z)", "x(0) = X(0)"] },
+            { q: "Final value theorem?", correct: "Gives steady-state value as z→1", wrong: ["Gives steady-state value as z→∞", "Gives initial value as z→0", "Gives maximum amplitude of the signal"] },
+            { q: "Stable system freq response condition?", correct: "ROC must include entire unit circle", wrong: ["ROC must be exactly the origin", "ROC must exclude the unit circle", "ROC must be the entire z-plane"] },
+            { q: "Z-transform of a^n u(n)?", correct: "z/(z-a) with ROC |z|>|a|", wrong: ["a/(z-a) with ROC |z|<|a|", "z/(z+a) with ROC |z|>a", "1/(1-a) with ROC |z|>1"] },
+            { q: "Causality condition for rational system?", correct: "ROC lies outside outermost pole", wrong: ["ROC lies inside innermost pole", "ROC is a ring between two poles", "ROC includes the point z=0"] },
+            { q: "N-point DFT definition?", correct: "X(k) = Σ x(n) * W_N^(nk)", wrong: ["X(k) = ∫ x(t) e^-jwt dt", "X(k) = Σ x(n) * z^-n", "X(k) = Σ x(n) * e^jωn"] },
+            { q: "IDFT formula?", correct: "x(n) = (1/N) Σ X(k) * W_N^(-nk)", wrong: ["x(n) = Σ X(k) * W_N^(nk)", "x(n) = N Σ X(k) * W_N^(-nk)", "x(n) = (1/N) Σ X(k) * z^n"] },
+            { q: "What does DFT do?", correct: "Represents finite sequence in discrete frequency components", wrong: ["Converts continuous signals to discrete time", "Compresses audio files", "Amplifies high-frequency noise"] },
+            { q: "What does N represent in DFT?", correct: "Number of samples and frequency bins", wrong: ["Nyquist rate", "Filter order", "Delay in seconds"] },
+            { q: "What does k represent in DFT?", correct: "Frequency-bin index", wrong: ["Time sample index", "Phase angle", "Amplitude scaling factor"] },
+            { q: "Difference between DFT and DTFT?", correct: "DTFT is continuous, DFT is discrete samples", wrong: ["DFT is continuous, DTFT is discrete", "DFT is for infinite signals, DTFT for finite", "They are just different names for the same transform"] },
+            { q: "Complexity of FFT vs direct DFT?", correct: "FFT is O(N log N), direct is O(N^2)", wrong: ["FFT is O(N), direct is O(N log N)", "Both are O(N^2)", "FFT is O(N^2 log N), direct is O(N)"] },
+            { q: "Time reversal property of DFT?", correct: "Reversing time sequence reverses DFT sequence", wrong: ["Reversing time sequence shifts DFT by π", "Reversing time sequence squares the DFT", "Reversing time sequence has no effect on DFT"] },
+            { q: "What is an FIR filter?", correct: "Finite Impulse Response, no feedback", wrong: ["Infinite Impulse Response, uses feedback", "Fast Impulse Regulator, frequency based", "Feedback Integrated Rectifier"] },
+            { q: "Why are FIR filters always BIBO stable?", correct: "No poles except at z=0", wrong: ["Poles are uniformly distributed", "They use recursive feedback", "They have infinite memory"] },
+            { q: "Condition for linear phase FIR?", correct: "Impulse response is symmetric or antisymmetric", wrong: ["Impulse response is an exponential decay", "All zeros are on the unit circle", "Filter order must be odd"] },
+            { q: "Does FIR require feedback?", correct: "No", wrong: ["Yes, always", "Only for highpass filters", "Only if order > 10"] },
+            { q: "Gibbs phenomenon in FIR?", correct: "Overshoot ripples near band edges due to rectangular window", wrong: ["Instability caused by high order", "Phase distortion in passband", "Complete attenuation of low frequencies"] },
+            { q: "Increasing FIR filter order?", correct: "Sharpens transition band but increases delay and complexity", wrong: ["Widens transition band and reduces delay", "Makes the filter non-causal", "Decreases computational cost"] },
+            { q: "Can Type II FIR be highpass?", correct: "No, it has a zero at z=-1", wrong: ["Yes, it is ideal for highpass", "No, it has a pole at z=-1", "Yes, if a Hamming window is used"] },
+            { q: "Advantages of FIR?", correct: "Guaranteed stability and exact linear phase", wrong: ["Lower order than IIR, requires less memory", "Infinite memory for better precision", "Analog implementation is trivial"] },
+            { q: "What is an IIR filter?", correct: "Infinite Impulse Response, uses recursive feedback", wrong: ["Finite Impulse Response, no feedback", "Integrated Impulse Regulator", "Ideal Impulse Rectifier"] },
+            { q: "Bilinear transformation method?", correct: "Maps analog H(s) to digital H(z) avoiding aliasing", wrong: ["Converts FIR to IIR directly", "Time-domain windowing technique", "Method to calculate FFT"] },
+            { q: "Impulse invariance method limitation?", correct: "Suffers from aliasing", wrong: ["Cannot design lowpass filters", "Requires infinite memory", "Results in unstable filters always"] },
+            { q: "Can IIR be unstable?", correct: "Yes, if poles move outside unit circle", wrong: ["No, it is always unconditionally stable", "Yes, if zeros move outside unit circle", "Only if implemented in floating-point"] },
+            { q: "Main disadvantage of IIR?", correct: "Cannot achieve exact linear phase and can be unstable", wrong: ["Requires significantly higher order than FIR", "Takes up too much bandwidth", "Cannot have a sharp roll-off"] },
+            { q: "IIR vs FIR order?", correct: "IIR requires lower order for same roll-off sharpness", wrong: ["IIR requires higher order for same roll-off", "They require exactly the same order", "FIR requires zero order"] },
+            { q: "Direct form I vs II?", correct: "Form II shares a single delay line, reducing memory", wrong: ["Form I is for FIR, Form II is for IIR", "Form I is strictly parallel, Form II is strictly cascade", "Form II requires double the memory of Form I"] }
+        ];
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let optionsShuffled = [];
+
+        // DOM Elements
+        const startScreen = document.getElementById('startScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        
+        const startBtn = document.getElementById('startBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const questionCount = document.getElementById('questionCount');
+        const totalCount = document.getElementById('totalCount');
+        const currentScore = document.getElementById('currentScore');
+        const nextIndicator = document.getElementById('nextIndicator');
+        
+        const finalScoreDisplay = document.getElementById('finalScoreDisplay');
+        const resultIcon = document.getElementById('resultIcon');
+        const resultMessage = document.getElementById('resultMessage');
+
+        // Initialize Total Count UI
+        totalCount.textContent = quizData.length;
+
+        // Event Listeners
+        startBtn.addEventListener('click', startQuiz);
+        retryBtn.addEventListener('click', startQuiz);
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            updateScoreUI();
+            
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            
+            quizScreen.classList.remove('fade-enter-active');
+            void quizScreen.offsetWidth;
+            quizScreen.classList.add('fade-enter-active');
+
+            loadQuestion();
+        }
+
+        // Fisher-Yates Shuffle Algorithm
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function loadQuestion() {
+            nextIndicator.classList.add('hidden');
+            const qData = quizData[currentQuestionIndex];
+            
+            // Update UI Counters
+            questionCount.textContent = currentQuestionIndex + 1;
+            questionText.textContent = qData.q;
+            
+            // Prepare and shuffle options
+            let options = [qData.correct, ...qData.wrong];
+            optionsShuffled = shuffleArray(options);
+            
+            // Render Options
+            optionsContainer.innerHTML = '';
+            optionsShuffled.forEach((opt) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full text-left bg-slate-50 border-2 border-slate-200 text-slate-700 font-medium py-4 px-6 rounded-xl hover:bg-blue-50 hover:border-blue-300 focus:outline-none';
+                btn.textContent = opt;
+                btn.onclick = () => handleOptionSelect(btn, opt === qData.correct, qData.correct);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleOptionSelect(selectedBtn, isCorrect, correctAnswerText) {
+            // Disable all buttons immediately
+            const allBtns = optionsContainer.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('cursor-not-allowed', 'opacity-80');
+                btn.classList.remove('hover:bg-blue-50', 'hover:border-blue-300');
+            });
+
+            if (isCorrect) {
+                selectedBtn.classList.add('correct-answer');
+                score++;
+                updateScoreUI();
+            } else {
+                selectedBtn.classList.add('wrong-answer');
+                allBtns.forEach(btn => {
+                    if (btn.textContent === correctAnswerText) {
+                        btn.classList.add('correct-answer');
+                        btn.style.transform = 'scale(1.02)';
+                        setTimeout(() => btn.style.transform = 'scale(1)', 300);
+                    }
+                });
+            }
+
+            // Show Auto-next indicator & schedule transition
+            nextIndicator.classList.remove('hidden');
+            setTimeout(loadNextQuestion, 1500);
+        }
+
+        function updateScoreUI() {
+            currentScore.textContent = score;
+        }
+
+        function loadNextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                optionsContainer.classList.remove('fade-enter-active');
+                questionText.classList.remove('fade-enter-active');
+                void optionsContainer.offsetWidth; // trigger reflow
+                
+                loadQuestion();
+                
+                optionsContainer.classList.add('fade-enter-active');
+                questionText.classList.add('fade-enter-active');
+            } else {
+                showResultScreen();
+            }
+        }
+
+        function showResultScreen() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            resultScreen.classList.remove('fade-enter-active');
+            void resultScreen.offsetWidth;
+            resultScreen.classList.add('fade-enter-active');
+
+            finalScoreDisplay.textContent = `${score}/${quizData.length}`;
+            
+            const percentage = score / quizData.length;
+            if (percentage >= 0.8) {
+                resultMessage.textContent = "Excellent work! You have a strong grasp of DSP concepts.";
+                resultIcon.innerHTML = `<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>`;
+                resultIcon.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 bg-emerald-100 text-emerald-600";
+            } else if (percentage >= 0.5) {
+                resultMessage.textContent = "Good job! But there's still room for improvement.";
+                resultIcon.innerHTML = `<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>`;
+                resultIcon.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 bg-blue-100 text-blue-600";
+            } else {
+                resultMessage.textContent = "Keep studying! DSP can be tough, you'll get it next time.";
+                resultIcon.innerHTML = `<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+                resultIcon.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 bg-rose-100 text-rose-600";
+            }
+        }
+    </script>
+</body>
+</html>
